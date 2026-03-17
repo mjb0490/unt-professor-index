@@ -1,12 +1,15 @@
-import { pgTable, integer, varchar, text } from "drizzle-orm/pg-core";
+import { pgTable, integer, text } from "drizzle-orm/pg-core"
+import { sql } from "drizzle-orm"
 
-export const unt_courses = pgTable("unt_courses", {
-  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  professorName: varchar("professor_name", { length: 255 }).notNull(),
-  department: varchar("department", { length: 255 }).notNull(),
-  courseCode: varchar("course_code", { length: 50 }).notNull(),
-  courseName: varchar("course_name", { length: 255 }).notNull(),
-  semester: varchar("semester", { length: 50 }).notNull(),
-  syllabusLink: text("syllabus_link").notNull(),
-  profileUrl: text("profile_url").notNull(),
+
+
+export const untCourses = pgTable("unt_courses", {
+	id: integer().primaryKey().generatedAlwaysAsIdentity({ name: "unt_courses_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
+	professorName: text("professor_name"),
+	department: text(),
+	courseCode: text("course_code"),
+	courseName: text("course_name"),
+	semester: text(),
+	syllabusLink: text("syllabus_link"),
+	profileUrl: text("profile_url"),
 });

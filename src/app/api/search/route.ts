@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { unt_courses } from '@/db/schema';
-import { ilike, or } from 'drizzle-orm';
+import { untCourses } from '@/db/schema';
+import { ilike } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
-    //pull name from the url
     const { searchParams } = new URL(request.url);
     const nameQuery = searchParams.get('name');
 
@@ -13,35 +12,28 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        //drizzle orm conversion: makes SQL command automatically
         const results = await db.select()
-            .from(professors)
-            .where(ilike(professors.name, '%${nameQuery}%'));
+            .from(untCourses)
+            .where(ilike(untCourses.professorName, `%${nameQuery}%`));
         
         return NextResponse.json({
-            offset: 3743744,
             page_id: "0",
-            object_id: "1113440",
             page_type: "Table",
-            schema: ["Nbr", "Str", "Str", "Str", "Str", "Str", "Str"],
-            records: results.map((prof, index) => ({
-                offset: 382 + (index * 100),
-                allocated: true,
-                row_id: prof.id.toString(),
+            records: results.map((row) => ({
+                row_id: row.id.toString(),
                 values: [
-                    prof.id.toString(),
-                    prof.name,
-                    prof.department,
-                    prof.college || "UNT",
-                    prof.rank || "Faculty",
-                    "AMERICA",
-                    "11-710-812-5403" //these are placeholders
+                    row.id.toString(),
+                    row.professorName,
+                    row.courseCode,
+                    row.courseName,
+                    row.semester,
+                    row.department
                 ]
             }))
         });
 
     } catch (error) {
-        console.error("Searcch API Error:", error);
-        return NextResponse.json({ error: "Database connection" }, { status: 500 });
+        console.error("API Error:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

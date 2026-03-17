@@ -1,20 +1,18 @@
-'use server'; //keeps db pw hidden
+'use server';
 
 import { db } from '@/lib/db'; 
 import { ilike, or } from 'drizzle-orm';
-import { unt_courses } from '@/db/schema';
+import { untCourses } from '@/db/schema';
 
 export async function getProfessorsBySearch(searchTerm: string) {
-    //return empty list when no user input
     if (!searchTerm) return [];
 
     try {
-        //ask db for names/departments search match
-        const results = await db.select().from(unt_courses).where(
+        const results = await db.select().from(untCourses).where(
             or(
-                ilike(unt_courses.professorName, '%${searchTerm}%'),
-                ilike(unt_courses.courseName, '%${searchTerm}%'),
-                ilike(unt_courses.courseCode, '%${searchTerm}%')
+                ilike(untCourses.professorName, `%${searchTerm}%`),
+                ilike(untCourses.courseName, `%${searchTerm}%`),
+                ilike(untCourses.courseCode, `%${searchTerm}%`)
             )
         );        
         return results;
