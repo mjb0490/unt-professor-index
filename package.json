@@ -15,6 +15,7 @@
   "type": "commonjs",
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
+    "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "next": "^16.1.7",
     "react": "^19.2.4",
@@ -24,6 +25,8 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "drizzle-kit": "^0.18.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }
