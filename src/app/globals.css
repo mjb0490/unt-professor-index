@@ -1,0 +1,40 @@
+/* src/app/globals.css */
+
+/* Try this first. If it still says "Can't resolve tailwindcss", 
+   just comment out this line with /* */
+@import "tailwindcss";
+
+@theme {
+  /* Official UNT Green */
+  --color-primary: #00853E;
+  --color-primary-foreground: #ffffff;
+  
+  --color-background: #ffffff;
+  --color-foreground: #020817;
+  --color-border: #e2e8f0;
+}
+
+/* Base Styles to keep Shadcn components looking correct */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --primary: 153 100% 26%; /* #00853E */
+    --primary-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 153 100% 26%;
+    --radius: 0.5rem;
+  }
+}
+
+/* Basic UNT styling for the Body */
+body {
+  background-color: white;
+  color: #1a202c;
+  font-family: sans-serif;
+  margin: 0;
+}
+
+/* This is the dark mode helper for your buttons */
+@custom-variant dark (&:is(.dark *));
