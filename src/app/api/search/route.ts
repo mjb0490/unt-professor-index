@@ -1,39 +1,61 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { untCourses } from '@/db/schema';
-import { ilike } from 'drizzle-orm';
+import { db } from "@/lib/db";
+import { untCourses } from "@/db/schema";
+import { ilike, or } from "drizzle-orm";
+import { NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
-    const { searchParams } = new URL(request.url);
-    const nameQuery = searchParams.get('name');
+export async function GET(req: Request) {
+  // 1. Extract query parameters from the URL
+  const { searchParams } = new URL(req.url);
+  const searchTerm = searchParams.get("name") || "";
+  const type = searchParams.get("type") || "professor";
 
-    if (!nameQuery) {
-        return NextResponse.json({ error: "No name provided" }, { status: 400 });
+  // If search term is too short, return empty array to save DB resources
+  if (searchTerm.length < 1) {
+    return NextResponse.json([]);
+  }
+
+  try {
+    if (type === "professor") {
+      // 2. Search by Professor Name
+      const results = await db
+        .select({
+          id: untCourses.id,
+          professorName: untCourses.professorName,
+          department: untCourses.department,
+        })
+        .from(untCourses)
+        .where(ilike(untCourses.professorName, `%${searchTerm}%`))
+        // Limit results so the UI stays fast
+        .limit(20);
+
+      // Remove duplicates if the same professor appears for multiple courses
+      const uniqueProfessors = results.filter(
+        (value, index, self) =>
+          index === self.findIndex((t) => t.professorName === value.professorName)
+      );
+
+      return NextResponse.json(uniqueProfessors);
+    } else {
+      // 3. Search by Course Code or Course Name
+      const results = await db
+        .select({
+          id: untCourses.id,
+          courseCode: untCourses.courseCode,
+          courseName: untCourses.courseName,
+        })
+        .from(untCourses)
+        .where(
+          or(
+            ilike(untCourses.courseCode, `%${searchTerm}%`),
+            ilike(untCourses.courseName, `%${searchTerm}%`)
+          )
+        )
+        .limit(50);
+
+      return NextResponse.json(results);
     }
-
-    try {
-        const results = await db.select()
-            .from(untCourses)
-            .where(ilike(untCourses.professorName, `%${nameQuery}%`));
-        
-        return NextResponse.json({
-            page_id: "0",
-            page_type: "Table",
-            records: results.map((row) => ({
-                row_id: row.id.toString(),
-                values: [
-                    row.id.toString(),
-                    row.professorName,
-                    row.courseCode,
-                    row.courseName,
-                    row.semester,
-                    row.department
-                ]
-            }))
-        });
-
-    } catch (error) {
-        console.error("API Error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-    }
+  } catch (error) {
+    console.error("Search API Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
